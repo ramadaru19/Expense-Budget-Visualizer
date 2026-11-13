@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Track daily spending, see your remaining budget and a chart of spending by category." />
+  <meta name="theme-color" content="#FFF8F0" />
+  <title>Expense &amp; Budget Visualizer</title>
+
+  <!-- Rounded, friendly font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Chart.js (pie chart) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js" defer></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo" aria-hidden="true">🌱</div>
+    <div>
+      <h1>Expense &amp; Budget Visualizer</h1>
+      <p class="subtitle">Track your spending, one little coin at a time.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ===== Total Balance ===== -->
+    <section id="balance-card" class="card hero" aria-labelledby="balance-label">
+      <p id="balance-label" class="hero-label">Total Balance</p>
+      <p id="balance" class="balance">Rp 0</p>
+
+      <div class="hero-stats">
+        <div class="pill">
+          <span class="pill-label">Budget</span>
+          <span id="budget-display" class="pill-value">Rp 0</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">Spent</span>
+          <span id="spent-display" class="pill-value">Rp 0</span>
+        </div>
+      </div>
+
+      <form id="budget-form" class="inline-form hero-form" novalidate>
+        <label for="budget-input" class="sr-only">Budget amount</label>
+        <input type="number" id="budget-input" min="0" step="1" inputmode="numeric" placeholder="Budget (Rp)" />
+        <button type="submit" class="btn btn-light">Save Budget</button>
+      </form>
+      <p id="budget-error" class="error error-light" role="alert"></p>
+      <p id="budget-hint" class="hint">Set a budget to see how much you have left.</p>
+    </section>
+
+    <!-- ===== Add Transaction ===== -->
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title"><span class="icon icon-coral" aria-hidden="true">✍️</span>Add Transaction</h2>
+      <form id="transaction-form" novalidate>
+        <div class="field">
+          <label for="item-name">Item Name</label>
+          <input type="text" id="item-name" maxlength="40" placeholder="e.g. Nasi goreng" autocomplete="off" />
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="amount">Amount (Rp)</label>
+            <input type="number" id="amount" min="1" step="1" inputmode="numeric" placeholder="e.g. 15000" />
+          </div>
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category"></select>
+        </div>
+
+        <p id="form-error" class="error" role="alert"></p>
+        <button type="submit" class="btn btn-primary btn-block">+ Add Transaction</button>
+      </form>
+
+      <!-- Custom categories (optional challenge 1) -->
+      <details class="custom-categories">
+        <summary>Manage categories</summary>
+        <form id="category-form" class="inline-form" novalidate>
+          <label for="new-category" class="sr-only">New category name</label>
+          <input type="text" id="new-category" maxlength="20" placeholder="New category, e.g. Bills" autocomplete="off" />
+          <button type="submit" class="btn btn-sage">Add</button>
+        </form>
+        <p id="category-error" class="error" role="alert"></p>
+        <ul id="category-list" class="chip-list"></ul>
+      </details>
+    </section>
+
+    <div class="grid-2">
+      <!-- ===== Transaction List ===== -->
+      <section class="card" aria-labelledby="list-title">
+        <div class="card-head">
+          <h2 id="list-title"><span class="icon icon-sage" aria-hidden="true">🧾</span>Transactions</h2>
+          <!-- Sorting (optional challenge 3) -->
+          <label for="sort-select" class="sr-only">Sort transactions</label>
+          <select id="sort-select" class="select-sm">
+            <option value="date-desc">Newest first</option>
+            <option value="date-asc">Oldest first</option>
+            <option value="amount-desc">Amount: high → low</option>
+            <option value="amount-asc">Amount: low → high</option>
+            <option value="category-asc">Category: A → Z</option>
+          </select>
+        </div>
+        <ul id="transaction-list" class="transaction-list"></ul>
+        <p id="empty-list" class="empty">No transactions yet. Add your first expense above. ☕</p>
+      </section>
+
+      <!-- ===== Pie Chart ===== -->
+      <section class="card" aria-labelledby="chart-title">
+        <h2 id="chart-title"><span class="icon icon-peach" aria-hidden="true">🥧</span>Spending by Category</h2>
+        <div class="chart-wrap">
+          <div id="chart-box" class="chart-box">
+            <canvas id="spending-chart" aria-label="Pie chart of spending by category" role="img"></canvas>
+          </div>
+          <p id="empty-chart" class="empty">Your chart will bloom here once you add an expense. 🌼</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Monthly Summary (optional challenge 2) ===== -->
+    <section class="card" aria-labelledby="summary-title">
+      <div class="card-head">
+        <h2 id="summary-title"><span class="icon icon-lilac" aria-hidden="true">📅</span>Monthly Summary</h2>
+        <label for="month-select" class="sr-only">Choose month</label>
+        <input type="month" id="month-select" class="select-sm" />
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-box box-coral">
+          <span class="stat-label">Total spent</span>
+          <span id="month-total" class="stat-value">Rp 0</span>
+        </div>
+        <div class="summary-box box-sage">
+          <span class="stat-label">Transactions</span>
+          <span id="month-count" class="stat-value">0</span>
+        </div>
+        <div class="summary-box box-lilac">
+          <span class="stat-label">Top category</span>
+          <span id="month-top" class="stat-value">–</span>
+        </div>
+      </div>
+
+      <ul id="month-breakdown" class="breakdown"></ul>
+      <p id="empty-month" class="empty">No expenses recorded in this month.</p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Your data stays in this browser only (Local Storage). 🔒</p>
+  </footer>
+</body>
+</html>
