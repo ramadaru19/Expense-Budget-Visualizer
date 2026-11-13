@@ -2,7 +2,7 @@
 
 A mobile-friendly web app for tracking daily spending in Rupiah. Built with HTML, CSS and vanilla JavaScript. Data stays in your browser (Local Storage).
 
-**Live demo:** https://YOUR-USERNAME.github.io/YOUR-REPO-NAME/
+**Live demo:** https://Expense&BudgetVisualizer.github.io/RRepo/
 
 ## Features
 
